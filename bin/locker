@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+from optparse import OptionParser
+
+import dynamolock
+
+#------------------------------------------------------------
+# logging
+#------------------------------------------------------------
+
+import logging
+_logger = logging.getLogger("dynamolock")
+
+#---------------------------------------------------------------------------# 
+# get script configuration
+#---------------------------------------------------------------------------# 
+
+def _get_options():
+    ''' A helper method to parse the command line options
+
+    :returns: The options manager
+    '''
+    parser = OptionParser()
+
+    parser.add_option("-n", "--name",
+        help="The name of the lock to operate with",
+        dest="name", default=None)
+
+    parser.add_option("-d", "--debug",
+        help="Enable debug tracing",
+        action="store_true", dest="debug", default=False)
+
+    parser.add_option("-o", "--owner",
+        help="Change the owner to work with",
+        dest="owner", default=None)
+
+    parser.add_option("-a", "--action",
+        help="The action to perform on the lock",
+        dest="action", default='get')
+
+    (opt, arg) = parser.parse_args()
+    return opt
+
+#------------------------------------------------------------
+# utilities
+#------------------------------------------------------------
+
+def get_action(op):
+    ''' Given an operation short name, convert that name
+    to the standard name.
+
+    :param op: A possible short name for the operation
+    :return: The standard name for the operation
+    '''
+    op = op.lower().strip()
+    if op == 'd' or op == 'del' or op == 'delete':
+        return 'delete'
+    if op == 'g' or op == 'get' or op == 'retrieve':
+        return 'retrieve'
+    if op == 'u' or op == 'old' or op == 'update':
+        return 'update'
+    if op == 'c' or op == 'new' or op == 'create':
+        return 'create'
+    if op == 't' or op == 'tap' or op == 'touch':
+        return 'touch'
+    return None
+
+#------------------------------------------------------------
+# main
+#------------------------------------------------------------
+
+def main():
+    option = _get_options()
+
+    if option.debug:
+        _logger.setLevel(logging.DEBUG)
+        logging.basicConfig()
+
+    params = {}
+    action = get_action(option.action)
+    client = dynamolock.DynamoDBLockClient(**params)
+
+    if   action == 'retrieve':
+        lock = client.retrieve_lock(option.name)
+        print "result of retrieve operation:\n%s" % str(lock)
+    elif action == 'touch':
+        lock = client.retrieve_lock(option.name)
+        good = client.touch_lock(lock)
+        print "result of touch operation: %s" % good
+    elif action == 'delete':
+        lock = client.retrieve_lock(option.name)
+        good = client.release_lock(lock, delete=True)
+        print "result of delete operation: %s" % good
+    elif action == 'create' or action == "update":
+        lock = client.acquire_lock(option.name)
+        print "result of %s operation:\n%s" % (action, str(lock))
+    else:
+        print "unknown operation %s specified" % option.operation
+
+if __name__ == "__main__":
+    main()

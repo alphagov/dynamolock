@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+''' A script that will simply hold a lock forever and make sure
+it is never timed out using the supplied worker.
+'''
+from optparse import OptionParser
+
+import dynamolock
+
+#------------------------------------------------------------
+# logging
+#------------------------------------------------------------
+
+import logging
+_logger = logging.getLogger("dynamolock")
+
+#---------------------------------------------------------------------------# 
+# get script configuration
+#---------------------------------------------------------------------------# 
+
+def _get_options():
+    ''' A helper method to parse the command line options
+
+    :returns: The options manager
+    '''
+    parser = OptionParser()
+
+    parser.add_option("-n", "--name",
+        help="The name of the lock to operate with",
+        dest="name", default=None)
+
+    parser.add_option("-d", "--debug",
+        help="Enable debug tracing",
+        action="store_true", dest="debug", default=False)
+
+    (opt, arg) = parser.parse_args()
+    return opt
+
+#------------------------------------------------------------
+# main
+#------------------------------------------------------------
+
+def main():
+    option = _get_options()
+
+    if option.debug:
+        _logger.setLevel(logging.DEBUG)
+        logging.basicConfig()
+
+    params = {}
+    action = get_action(option.action)
+    client = dynamolock.DynamoDBLockClient(**params)
+    client.startup()
+    lock = client.acquire_lock(option.name)
+    client.worker.join()
+
+if __name__ == "__main__":
+    main()

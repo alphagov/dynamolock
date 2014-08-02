@@ -1,0 +1,8 @@
+- unit tests, failure tests
+- thunk update data for when the lock is released
+  * callback on release
+  * merge existing stale lock data with our data? (flag)
+- extra schema
+  * rename name to key
+  * add range key if needed
+  * add additional attributes if needed
