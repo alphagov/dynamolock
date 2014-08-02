@@ -21,10 +21,10 @@ setup(name  = 'dynamolock',
     platforms = ['Linux', 'Mac OS X', 'Win'],
     include_package_data = True,
     zip_safe = True,
-    install_requires = [],
+    install_requires = [ 'boto >= 2.32.0' ],
     extras_require = {
-        'quality'   : [ 'coverage >= 3.5.3', 'nose >= 1.2.1', 'mock >= 1.0.0', 'pep8 >= 1.3.3' ],
-        'documents' : [ 'sphinx >= 1.1.3' ],
+        'quality'   : [ 'coverage >= 3.5.3', 'nose >= 1.3.1', 'mock >= 1.0.0', 'pep8 >= 1.3.3' ],
+        'documents' : [ 'Sphinx >= 1.2.2' ],
     },
     test_suite = 'nose.collector'
 )
