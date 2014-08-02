@@ -10,8 +10,10 @@ _logger = logging.getLogger(__name__)
 #--------------------------------------------------------------------------------
 
 class DynamoDBLockContext(object):
-    ''' A context manager to help using locks in a `with` statement::
-    
+    ''' A context manager to help using locks in a `with` statement.
+
+    .. code-block:: python
+
         from dynamolock import DynamoDBLockContext as locker
 
         with locker(client=client, name="lock-to-get") as handle:
